@@ -28,17 +28,20 @@ const formSchema = z.object({
   image: z.string(),
 });
 
+interface CollectionFormProps {
+  initialData?: CollectionType | null; //Must have "?" to make it optional
+}
 
-
-const CollectionForm=() => {
+const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-    
+    defaultValues: initialData
+      ? initialData
+      : {
           title: "",
           description: "",
           image: "",
@@ -54,15 +57,16 @@ const CollectionForm=() => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
-      console.log(values);
-      const url =  "/api/collections";
+      const url = initialData
+        ? `/api/collections/${initialData._id}`
+        : "/api/collections";
       const res = await fetch(url, {
         method: "POST",
         body: JSON.stringify(values),
       });
       if (res.ok) {
         setLoading(false);
-        toast.success(`Collection ${"created"}`);
+        toast.success(`Collection ${initialData ? "updated" : "created"}`);
         window.location.href = "/collections";
         router.push("/collections");
       }
@@ -71,11 +75,17 @@ const CollectionForm=() => {
       toast.error("Something went wrong! Please try again.");
     }
   };
+
   return (
     <div className="p-10">
-    
+      {initialData ? (
+        <div className="flex items-center justify-between">
+          <p className="text-heading2-bold">Edit Collection</p>
+          <Delete id={initialData._id} item="collection" />
+        </div>
+      ) : (
         <p className="text-heading2-bold">Create Collection</p>
-      
+      )}
       <Separator className="bg-grey-1 mt-4 mb-7" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
