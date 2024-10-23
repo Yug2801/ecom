@@ -46,7 +46,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
+
   const [collections, setCollections] = useState<CollectionType[]>([]);
+
+
 
   const getCollections = async () => {
     try {
@@ -54,7 +57,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
         method: "GET",
       });
       const data = await res.json();
-      setCollections(data);
+      console.log(data);
+      if (Array.isArray(data)) {
+        setCollections(data); // Set the collections directly
+      } else {
+        // Handle case where data is not an array
+        console.error("Data format error: Expected array, received", data);
+        toast.error("Unexpected data format. Please try again.");
+      }
+    
       setLoading(false);
     } catch (err) {
       console.log("[collections_GET]", err);
@@ -64,7 +75,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
 
   useEffect(() => {
     getCollections();
+
+    console.log(collections);
   }, []);
+  useEffect(() => {
+    if (collections.length > 0) {
+      console.log("Updated collections state: ", collections);
+    }
+  }, [collections]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -84,8 +102,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
           tags: [],
           sizes: [],
           colors: [],
-          price: 0.1,
-          expense: 0.1,
+          price: 1000,
+          expense: 100,
         },
   });
 
@@ -132,6 +150,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
         <p className="text-heading2-bold">Create Product</p>
       )}
       <Separator className="bg-grey-1 mt-4 mb-7" />
+      console.log(collections);
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -197,7 +216,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price (Rs.)</FormLabel>
+                  <FormLabel>Price ($)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -215,7 +234,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               name="expense"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Expense (Rs.)</FormLabel>
+                  <FormLabel>Expense ($)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"

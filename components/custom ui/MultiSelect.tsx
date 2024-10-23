@@ -7,6 +7,11 @@ interface CollectionType {
   title: string;
 }
 
+interface CollectionType {
+  _id: string;
+  title: string;
+}
+
 interface MultiSelectProps {
   placeholder: string;
   collections: CollectionType[];
@@ -17,7 +22,7 @@ interface MultiSelectProps {
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
   placeholder,
-  collections,
+  collections = [], // Default to an empty array if collections is undefined
   value,
   onChange,
   onRemove,
@@ -90,3 +95,4 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 };
 
 export default MultiSelect;
+
