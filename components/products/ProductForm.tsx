@@ -102,9 +102,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
-      const url = initialData
-        ? `/api/products/${initialData._id}`
-        : "/api/products";
+      const url =  "/api/products";
       const res = await fetch(url, {
         method: "POST",
         body: JSON.stringify(values),
@@ -269,35 +267,35 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
-            {collections.length > 0 && (
-              <FormField
-                control={form.control}
-                name="collections"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Collections</FormLabel>
-                    <FormControl>
-                      <MultiSelect
-                        placeholder="Collections"
-                        collections={collections}
-                        value={field.value}
-                        onChange={(_id) =>
-                          field.onChange([...field.value, _id])
-                        }
-                        onRemove={(idToRemove) =>
-                          field.onChange([
-                            ...field.value.filter(
-                              (collectionId) => collectionId !== idToRemove
-                            ),
-                          ])
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage className="text-red-1" />
-                  </FormItem>
-                )}
-              />
-            )}
+            
+           
+{collections.length > 0 && (
+  <FormField
+    control={form.control}
+    name="collections"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Collections</FormLabel>
+        <FormControl>
+          <MultiSelect
+            placeholder="Select Collections"
+            collections={collections}
+            value={field.value || []} // Ensure this is an array (it might be undefined initially)
+            onChange={(_id) => field.onChange([...field.value, _id])} // Add selected ID
+            onRemove={(idToRemove) =>
+              field.onChange(
+                field.value.filter((collectionId) => collectionId !== idToRemove) // Remove deselected ID
+              )
+            }
+          />
+        </FormControl>
+        <FormMessage className="text-red-1" />
+      </FormItem>
+    )}
+  />
+)}
+
+
             <FormField
               control={form.control}
               name="colors"
