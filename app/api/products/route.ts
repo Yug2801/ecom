@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 import { connectToDB } from "@/lib/mongoDB";
@@ -82,3 +82,4 @@ export const GET = async (req: NextRequest) => {
 };
 
 export const dynamic = "force-dynamic";
+

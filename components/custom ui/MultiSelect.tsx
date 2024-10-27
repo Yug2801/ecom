@@ -1,16 +1,19 @@
 "use client";
 
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
 import { useState } from "react";
-
-interface CollectionType {
-  _id: string;
-  title: string;
-}
-
-interface CollectionType {
-  _id: string;
-  title: string;
-}
+import { Badge } from "../ui/badge";
+import { X } from "lucide-react";
 
 interface MultiSelectProps {
   placeholder: string;
@@ -22,7 +25,7 @@ interface MultiSelectProps {
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
   placeholder,
-  collections = [], // Default to an empty array if collections is undefined
+  collections,
   value,
   onChange,
   onRemove,
@@ -30,69 +33,60 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState(false);
 
-  // Selected collections based on IDs in value
-  const selected: CollectionType[] = value
-    .map((id) => collections.find((collection) => collection._id === id))
-    .filter((collection): collection is CollectionType => collection !== undefined);
+  let selected: CollectionType[];
 
-  // Filter to get collections that haven't been selected yet
-  const selectables = collections.filter(
-    (collection) => !selected.find((sel) => sel._id === collection._id)
-  );
+  if (value.length === 0) {
+    selected = [];
+  } else {
+    selected = value.map((id) =>
+      collections.find((collection) => collection._id === id)
+    ) as CollectionType[];
+  }
+
+  const selectables = collections.filter((collection) => !selected.includes(collection)); 
 
   return (
-    <div className="relative w-full max-w-md">
-      <div className="flex flex-wrap gap-2 border p-2 rounded-md bg-gray-100">
+    <Command className="overflow-visible bg-white">
+      <div className="flex gap-1 flex-wrap border rounded-md">
         {selected.map((collection) => (
-          <div
-            key={collection._id}
-            className="flex items-center bg-blue-100 px-2 py-1 rounded-md"
-          >
+          <Badge key={collection._id}>
             {collection.title}
-            <button
-              onClick={() => onRemove(collection._id)}
-              className="ml-2 text-red-500 hover:text-red-700"
-            >
-              &times;
+            <button type="button" className="ml-1 hover:text-red-1" onClick={() => onRemove(collection._id)}>
+              <X className="h-3 w-3" />
             </button>
-          </div>
+          </Badge>
         ))}
 
-        <input
-          className="flex-1 p-2 border rounded-md focus:outline-none"
+        <CommandInput
           placeholder={placeholder}
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onFocus={() => setOpen(true)}
+          onValueChange={setInputValue}
           onBlur={() => setOpen(false)}
+          onFocus={() => setOpen(true)}
         />
       </div>
 
-      {open && selectables.length > 0 && (
-        <ul className="absolute w-full mt-1 bg-white border rounded-md shadow-md z-10 max-h-40 overflow-auto">
-          {selectables
-            .filter((collection) =>
-              collection.title.toLowerCase().includes(inputValue.toLowerCase())
-            )
-            .map((collection) => (
-              <li
+      <div className="relative mt-2">
+        {open && (
+          <CommandGroup className="absolute w-full z-30 top-0 overflow-auto border rounded-md shadow-md">
+            {selectables.map((collection) => (
+              <CommandItem
                 key={collection._id}
-                className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
-                onMouseDown={(e) => e.preventDefault()} // Prevent input blur
-                onClick={() => {
+                onMouseDown={(e) => e.preventDefault()}
+                onSelect={() => {
                   onChange(collection._id);
                   setInputValue("");
-                  setOpen(false);
                 }}
+                className="hover:bg-grey-2 cursor-pointer"
               >
                 {collection.title}
-              </li>
+              </CommandItem>
             ))}
-        </ul>
-      )}
-    </div>
+          </CommandGroup>
+        )}
+      </div>
+    </Command>
   );
 };
 
 export default MultiSelect;
-

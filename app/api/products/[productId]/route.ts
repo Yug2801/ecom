@@ -1,7 +1,7 @@
 import Collection from "@/lib/models/Collection";
 import Product from "@/lib/models/Product";
 import { connectToDB } from "@/lib/mongoDB";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -175,3 +175,4 @@ export const DELETE = async (
 };
 
 export const dynamic = "force-dynamic";
+

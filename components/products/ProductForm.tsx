@@ -46,10 +46,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
-
   const [collections, setCollections] = useState<CollectionType[]>([]);
-
-
 
   const getCollections = async () => {
     try {
@@ -57,15 +54,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
         method: "GET",
       });
       const data = await res.json();
-      console.log(data);
-      if (Array.isArray(data)) {
-        setCollections(data); // Set the collections directly
-      } else {
-        // Handle case where data is not an array
-        console.error("Data format error: Expected array, received", data);
-        toast.error("Unexpected data format. Please try again.");
-      }
-    
+      setCollections(data);
       setLoading(false);
     } catch (err) {
       console.log("[collections_GET]", err);
@@ -75,14 +64,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
 
   useEffect(() => {
     getCollections();
-
-    console.log(collections);
   }, []);
-  useEffect(() => {
-    if (collections.length > 0) {
-      console.log("Updated collections state: ", collections);
-    }
-  }, [collections]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -102,8 +84,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
           tags: [],
           sizes: [],
           colors: [],
-          price: 1000,
-          expense: 100,
+          price: 0.1,
+          expense: 0.1,
         },
   });
 
@@ -120,7 +102,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
-      const url =  "/api/products";
+      const url = initialData
+        ? `/api/products/${initialData._id}`
+        : "/api/products";
       const res = await fetch(url, {
         method: "POST",
         body: JSON.stringify(values),
@@ -150,7 +134,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
         <p className="text-heading2-bold">Create Product</p>
       )}
       <Separator className="bg-grey-1 mt-4 mb-7" />
-      console.log(collections);
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -286,35 +269,35 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
-            
-           
-{collections.length > 0 && (
-  <FormField
-    control={form.control}
-    name="collections"
-    render={({ field }) => (
-      <FormItem>
-        <FormLabel>Collections</FormLabel>
-        <FormControl>
-          <MultiSelect
-            placeholder="Select Collections"
-            collections={collections}
-            value={field.value || []} // Ensure this is an array (it might be undefined initially)
-            onChange={(_id) => field.onChange([...field.value, _id])} // Add selected ID
-            onRemove={(idToRemove) =>
-              field.onChange(
-                field.value.filter((collectionId) => collectionId !== idToRemove) // Remove deselected ID
-              )
-            }
-          />
-        </FormControl>
-        <FormMessage className="text-red-1" />
-      </FormItem>
-    )}
-  />
-)}
-
-
+            {collections.length > 0 && (
+              <FormField
+                control={form.control}
+                name="collections"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Collections</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        placeholder="Collections"
+                        collections={collections}
+                        value={field.value}
+                        onChange={(_id) =>
+                          field.onChange([...field.value, _id])
+                        }
+                        onRemove={(idToRemove) =>
+                          field.onChange([
+                            ...field.value.filter(
+                              (collectionId) => collectionId !== idToRemove
+                            ),
+                          ])
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-1" />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name="colors"
