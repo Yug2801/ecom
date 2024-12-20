@@ -24,11 +24,15 @@ type CollectionType = {
   
   type OrderColumnType = {
     _id: string;
-    customer: string;
+    customerName: string;
+    customerEmail: string;
+    phoneNumber?: string; // Optional phone number field
     products: number;
     totalAmount: number;
+    status: "pending" | "accepted" | "rejected" | "shipped"; // Added order status
     createdAt: string;
-  }
+    updatedAt: string; // Added `updatedAt` field for tracking updates
+  };
   
   type OrderItemType = {
     product: ProductType

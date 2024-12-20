@@ -20,7 +20,7 @@ export const columns: ColumnDef<OrderItemType>[] = [
   },
   {
     accessorKey: "color",
-    header: "Color",
+    header: "color",
   },
   {
     accessorKey: "size",

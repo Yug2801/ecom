@@ -1,65 +1,39 @@
-import SalesChart from "@/components/custom ui/SalesChart";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import {
-  getSalesPerMonth,
-  getTotalCustomers,
-  getTotalSales,
-} from "@/lib/actions/actions";
-import { CircleDollarSign, ShoppingBag, UserRound } from "lucide-react";
+// app/page.tsx
+'use client'
 
-export default async function Home() {
-  const totalRevenue = await getTotalSales().then((data) => data.totalRevenue);
-  const totalOrders = await getTotalSales().then((data) => data.totalOrders);
-  const totalCustomers = await getTotalCustomers();
+import { useRouter } from 'next/navigation';
+import React from 'react';
 
-  const graphData = await getSalesPerMonth();
+const HomePage = () => {
+  const router = useRouter();
+
+  const handleSignIn = () => {
+    router.push('/sign-in'); // Navigate to the sign-in page
+  };
+
+  const handleSignUp = () => {
+    router.push('/sign-up'); // Navigate to the sign-up page
+  };
 
   return (
-    <div className="px-8 py-10">
-      <p className="text-heading2-bold">Dashboard</p>
-      <Separator className="bg-grey-1 my-5" />
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-10">
-        <Card>
-          <CardHeader className="flex flex-row justify-between items-center">
-            <CardTitle>Total Revenue</CardTitle>
-            <CircleDollarSign className="max-sm:hidden" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-body-bold">Rs. {totalRevenue}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row justify-between items-center">
-            <CardTitle>Total Orders</CardTitle>
-            <ShoppingBag className="max-sm:hidden" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-body-bold">{totalOrders}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row justify-between items-center">
-            <CardTitle>Total Customer</CardTitle>
-            <UserRound className="max-sm:hidden" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-body-bold">{totalCustomers}</p>
-          </CardContent>
-        </Card>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <h1 className="text-3xl font-semibold mb-6">Welcome to the Dashboard</h1>
+      <div className="flex gap-4">
+        <button
+          onClick={handleSignIn}
+          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200"
+        >
+          Sign In
+        </button>
+        <button
+          onClick={handleSignUp}
+          className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-200"
+        >
+          Sign Up
+        </button>
       </div>
-
-      <Card className="mt-10">
-        <CardHeader>
-          <CardTitle>Sales Chart (Rs. )</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SalesChart data={graphData} />
-        </CardContent>
-      </Card>
     </div>
   );
-}
+};
+
+export default HomePage;
