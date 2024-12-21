@@ -29,7 +29,7 @@ const formSchema = z.object({
 });
 
 interface CollectionFormProps {
-  initialData?: CollectionType | null; //Must have "?" to make it optional
+  initialData?: CollectionType | null;
 }
 
 const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
@@ -52,8 +52,8 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
     if (e.key === "Enter") {
       e.preventDefault();
     }
-  }
-  
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
@@ -65,7 +65,6 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
         body: JSON.stringify(values),
       });
       if (res.ok) {
-        setLoading(false);
         toast.success(`Collection ${initialData ? "updated" : "created"}`);
         window.location.href = "/collections";
         router.push("/collections");
@@ -73,6 +72,8 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
     } catch (err) {
       console.log("[collections_POST]", err);
       toast.error("Something went wrong! Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,7 +97,11 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="Title" {...field} onKeyDown={handleKeyPress} />
+                  <Input
+                    placeholder="Title"
+                    {...field}
+                    onKeyDown={handleKeyPress}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -109,7 +114,12 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Description" {...field} rows={5} onKeyDown={handleKeyPress} />
+                  <Textarea
+                    placeholder="Description"
+                    {...field}
+                    rows={5}
+                    onKeyDown={handleKeyPress}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -133,8 +143,12 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ initialData }) => {
             )}
           />
           <div className="flex gap-10">
-            <Button type="submit" className="bg-blue-1 text-white">
-              Submit
+            <Button
+              type="submit"
+              className="bg-blue-1 text-white"
+              disabled={loading}
+            >
+              {loading ? "Submitting..." : "Submit"}
             </Button>
             <Button
               type="button"

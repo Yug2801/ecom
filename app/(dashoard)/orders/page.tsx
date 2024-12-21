@@ -7,24 +7,39 @@ import { Separator } from "@/components/ui/separator"
 
 import { useEffect, useState } from "react"
 
+// Define the Order type based on the expected fields in your data
+interface Order {
+  _id: string;
+  customerName: string;
+  customerEmail: string;
+  phoneNumber?: string; // Optional phone number field
+  products: number;
+  totalAmount: number;
+  status: "pending" | "accepted" | "rejected" | "shipped"; // Added order status
+  createdAt: string;
+  updatedAt: string; // Assuming createdAt is a string (ISO format date)
+}
+
 const Orders = () => {
   const [loading, setLoading] = useState(true)
-  const [orders, setOrders] = useState([])
+  const [orders, setOrders] = useState<Order[]>([])
 
   const getOrders = async () => {
     try {
       const res = await fetch(`/api/orders`)
-      const data = await res.json()
+      const data: Order[] = await res.json()
 
       // Sort orders by status, putting "pending" orders first
-      const sortedOrders = data.sort((a, b) => {
+      const sortedOrders = data.sort((a: Order, b: Order) => {
         if (a.status === "pending" && b.status !== "pending") {
           return -1; // "pending" comes first
         }
         if (a.status !== "pending" && b.status === "pending") {
           return 1; // "pending" comes first
         }
-        return 0; // If both are the same, maintain order
+
+        // If both statuses are the same, compare by creation date (newest first)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Sort by creation date
       })
 
       console.log(sortedOrders)

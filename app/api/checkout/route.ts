@@ -3,6 +3,25 @@ import { connectToDB } from "@/lib/mongoDB";
 import Order from "@/lib/models/Order";
 import Customer from "@/lib/models/Customer";
 
+// Define types for the cart items and customer data
+interface CartItem {
+  item: {
+    _id: string;
+    price: number;
+  };
+  color: string;
+  size: string;
+  quantity: number;
+}
+
+interface CustomerData {
+  id: string;
+  fullName: string;
+  emailAddresses: { emailAddress: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 // CORS headers
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,7 +41,7 @@ export async function POST(req: NextRequest) {
     await connectToDB();
 
     // Get the request data
-    const { cartItems, customer, phoneNumber } = await req.json();
+    const { cartItems, customer, phoneNumber }: { cartItems: CartItem[]; customer: CustomerData; phoneNumber: string } = await req.json();
 
     // Validate input data
     if (!cartItems || !customer || !phoneNumber) {
@@ -33,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Calculate the total amount for the order
-    const totalAmount = cartItems.reduce((total: number, item: any) => {
+    const totalAmount = cartItems.reduce((total, item) => {
       return total + item.item.price * item.quantity;
     }, 0);
 
@@ -43,7 +62,7 @@ export async function POST(req: NextRequest) {
       customerName: customer.fullName,
       customerEmail: customer.emailAddresses[0].emailAddress,
       phoneNumber,
-      products: cartItems.map((item: any) => ({
+      products: cartItems.map((item) => ({
         product: item.item._id,
         color: item.color,
         size: item.size,
@@ -54,11 +73,10 @@ export async function POST(req: NextRequest) {
     };
 
     // Create a new order document
-    console.log(cartItems)
     const newOrder = new Order(orderDetails);
 
     // Check if the customer exists in the database
-    let existingCustomer = await Customer.findOne({ clerkId: customer.id });
+    const existingCustomer = await Customer.findOne({ clerkId: customer.id });
 
     if (existingCustomer) {
       // Add the new order to the customer's orders

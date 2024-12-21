@@ -66,7 +66,7 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
-export const GET = async (req: NextRequest) => {
+export const GET = async () => {
   try {
     await connectToDB();
 
@@ -82,4 +82,3 @@ export const GET = async (req: NextRequest) => {
 };
 
 export const dynamic = "force-dynamic";
-

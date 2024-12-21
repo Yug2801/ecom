@@ -22,24 +22,23 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Delete from "../custom ui/Delete";
 import MultiText from "../custom ui/MultiText";
-import MultiSelect from "../custom ui/MultiSelect";
 import Loader from "../custom ui/Loader";
 
 const formSchema = z.object({
-  title: z.string().min(2).max(20),
-  description: z.string().min(2).max(500).trim(),
+  title: z.string().min(2, { message: "Title must have at least 2 characters" }).max(20),
+  description: z.string().min(2, { message: "Description must have at least 2 characters" }).max(500),
   media: z.array(z.string()),
   category: z.string(),
   collections: z.array(z.string()),
   tags: z.array(z.string()),
   sizes: z.array(z.string()),
   colors: z.array(z.string()),
-  price: z.coerce.number().min(0.1),
-  expense: z.coerce.number().min(0.1),
+  price: z.coerce.number().min(0.1, { message: "Price must be greater than 0" }),
+  expense: z.coerce.number().min(0.1, { message: "Expense must be greater than 0" }),
 });
 
 interface ProductFormProps {
-  initialData?: ProductType | null; //Must have "?" to make it optional
+  initialData?: ProductType | null;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
@@ -55,10 +54,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
       });
       const data = await res.json();
       setCollections(data);
-      setLoading(false);
     } catch (err) {
       console.log("[collections_GET]", err);
       toast.error("Something went wrong! Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -90,9 +90,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   });
 
   const handleKeyPress = (
-    e:
-      | React.KeyboardEvent<HTMLInputElement>
-      | React.KeyboardEvent<HTMLTextAreaElement>
+    e: React.KeyboardEvent<HTMLInputElement> | React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -105,20 +103,33 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
       const url = initialData
         ? `/api/products/${initialData._id}`
         : "/api/products";
+      const method = initialData ? "PUT" : "POST";
+
       const res = await fetch(url, {
-        method: "POST",
+        method,
         body: JSON.stringify(values),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+
       if (res.ok) {
         setLoading(false);
         toast.success(`Product ${initialData ? "updated" : "created"}`);
-        window.location.href = "/products";
         router.push("/products");
+      } else {
+        throw new Error('Failed to save product');
       }
     } catch (err) {
       console.log("[products_POST]", err);
       toast.error("Something went wrong! Please try again.");
+      setLoading(false);
     }
+  };
+
+  const handleDiscard = () => {
+    form.reset();
+    router.push("/products");
   };
 
   return loading ? (
@@ -192,7 +203,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               </FormItem>
             )}
           />
-
           <div className="md:grid md:grid-cols-3 gap-8">
             <FormField
               control={form.control}
@@ -269,35 +279,40 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
-            {collections.length > 0 && (
-              <FormField
-                control={form.control}
-                name="collections"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Collections</FormLabel>
-                    <FormControl>
-                      <MultiSelect
-                        placeholder="Collections"
-                        collections={collections}
-                        value={field.value}
-                        onChange={(_id) =>
-                          field.onChange([...field.value, _id])
-                        }
-                        onRemove={(idToRemove) =>
-                          field.onChange([
-                            ...field.value.filter(
-                              (collectionId) => collectionId !== idToRemove
-                            ),
-                          ])
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage className="text-red-1" />
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              control={form.control}
+              name="collections"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Collections</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      {collections.map((collection) => (
+                        <label key={collection._id} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            value={collection._id}
+                            checked={field.value.includes(collection._id)}
+                            onChange={() => {
+                              const newCollections = field.value.includes(
+                                collection._id
+                              )
+                                ? field.value.filter(
+                                    (id) => id !== collection._id
+                                  )
+                                : [...field.value, collection._id];
+                              field.onChange(newCollections);
+                            }}
+                          />
+                          <span className="ml-2">{collection.title}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </FormControl>
+                  <FormMessage className="text-red-1" />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="colors"
@@ -351,17 +366,16 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               )}
             />
           </div>
-
-          <div className="flex gap-10">
-            <Button type="submit" className="bg-blue-1 text-white">
-              Submit
-            </Button>
+          <div className="space-x-4 mt-8">
             <Button
               type="button"
-              onClick={() => router.push("/products")}
+              onClick={handleDiscard}
               className="bg-blue-1 text-white"
             >
               Discard
+            </Button>
+            <Button type="submit" className="bg-black text-white">
+              {loading ? "Saving..." : "Save Product"}
             </Button>
           </div>
         </form>
