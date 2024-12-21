@@ -4,7 +4,7 @@ import StatusButtons from "@/components/ui/StatusButtons";
 
 const OrderDetails = async ({ params }: { params: { orderId: string } }) => {
   try {
-    const res = await fetch(`${process.env.ADMIN_DASHBOARD_URL}/api/orders/${params.orderId}`);
+    const res = await fetch(`$/api/orders/${params.orderId}`);
 
     if (!res.ok) {
       throw new Error("Failed to fetch order details");
