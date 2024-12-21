@@ -15,8 +15,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   onRemove,
   value,
 }) => {
-  const onUpload = (result: any) => {
-    onChange(result.info.secure_url);
+  const onUploadSuccess = (result: unknown) => {
+    if (typeof result === "object" && result !== null && "info" in result) {
+      const info = (result as { info?: { secure_url: string } }).info;
+      if (info?.secure_url) {
+        onChange(info.secure_url);
+      }
+    }
   };
 
   return (
@@ -39,7 +44,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         ))}
       </div>
 
-      <CldUploadWidget uploadPreset="myyu6boo" onUpload={onUpload}>
+      <CldUploadWidget uploadPreset="dwhqoimx" onUpload={onUploadSuccess}>
         {({ open }) => {
           return (
             <Button type="button" onClick={() => open()} className="bg-grey-1 text-white">
