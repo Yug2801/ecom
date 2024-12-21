@@ -34,9 +34,9 @@ const OrderDetails = ({ params }: { params: { orderId: string } }) => {
         const data: OrderDetailsType = await res.json();
         setOrderDetails(data.orderDetails);
         setCustomer(data.customer);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching order details:", err);
-        setError(err.message || "Something went wrong");
+        
       } finally {
         setIsLoading(false);
       }
