@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   title: "Ecom Dashboard",
   description: "Admin dashboard to manage data",
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
