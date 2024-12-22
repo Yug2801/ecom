@@ -30,7 +30,7 @@ export const GET = async () => {
       createdAt: format(order.createdAt, "MMM d, yyyy"), // Format the date in "Month Day, Year"
       updatedAt: format(order.updatedAt, "MMM d, yyyy"), // Format the date
     }));
-
+    console.log(orderDetails);
     // Return the response as JSON with status 200 and CORS headers
     return NextResponse.json(orderDetails, { status: 200, headers: corsHeaders });
   } catch (err) {
