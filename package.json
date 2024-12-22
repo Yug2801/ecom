@@ -20,6 +20,7 @@
     "@stripe/stripe-js": "^4.9.0",
     "@tanstack/react-table": "^8.20.5",
     "@ts-morph/common": "^0.25.0",
+    "aws4": "^1.13.2",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
