@@ -4,11 +4,6 @@ import {  NextResponse } from "next/server";
 import { format } from "date-fns";
 
 // CORS Headers
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
 
 // GET handler for fetching orders
 export const GET = async () => {
@@ -32,9 +27,9 @@ export const GET = async () => {
     }));
     console.log(orderDetails);
     // Return the response as JSON with status 200 and CORS headers
-    return NextResponse.json(orderDetails, { status: 200, headers: corsHeaders });
+    return NextResponse.json(orderDetails, { status: 200 });
   } catch (err) {
     console.error("[orders_GET]", err); // Log the error for debugging purposes
-    return new NextResponse("Internal Server Error", { status: 500, headers: corsHeaders });
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 };
