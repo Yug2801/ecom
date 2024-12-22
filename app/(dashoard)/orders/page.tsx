@@ -29,6 +29,7 @@ const Orders = () => {
       
       const res = await fetch("/api/orders", {
         method: "GET",
+        cache: "no-store",
       });
       const data: Order[] = await res.json()
 

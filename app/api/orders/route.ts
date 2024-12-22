@@ -16,7 +16,7 @@ export const GET = async () => {
     await connectToDB(); // Connect to the database
 
     // Fetch all orders and sort by creation date in descending order
-    const orders = await Order.find().sort({ createdAt: -1 });
+    const orders = await Order.find();
 
     // Map through the orders to format data
     const orderDetails = orders.map((order) => ({
