@@ -22,7 +22,7 @@ interface Order {
 
 const Orders = () => {
   const [loading, setLoading] = useState(true)
-  const [orders, setOrders] = useState<Order[]>([])
+  const [orders, setOrders] = useState<OrderColumnType[]>([])
 
   const getOrders = async () => {
     try {
@@ -31,23 +31,10 @@ const Orders = () => {
         method: "GET",
         cache: "no-store",
       });
-      const data: Order[] = await res.json()
+      const data= await res.json()
 
-      // Sort orders by status, putting "pending" orders first
-      const sortedOrders = data.sort((a: Order, b: Order) => {
-        if (a.status === "pending" && b.status !== "pending") {
-          return -1; // "pending" comes first
-        }
-        if (a.status !== "pending" && b.status === "pending") {
-          return 1; // "pending" comes first
-        }
-
-        // If both statuses are the same, compare by creation date (newest first)
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Sort by creation date
-      })
-
-      console.log(sortedOrders)
-      setOrders(sortedOrders)
+      console.log(data)
+      setOrders(data)
       setLoading(false)
     } catch (err) {
       console.log("[orders_GET]", err)
