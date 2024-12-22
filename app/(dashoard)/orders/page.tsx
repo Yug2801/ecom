@@ -8,7 +8,7 @@ const Orders = async () => {
   await connectToDB();
 
   // Fetch all orders and sort them by creation date (newest first)
-  const orders = await Order.find().sort({ createdAt: -1 });
+  const orders = await Order.find();
 
   // Convert Mongoose documents to plain objects using .lean() (if needed)
   const plainOrders = orders.map(order => order.toObject ? order.toObject() : order);
