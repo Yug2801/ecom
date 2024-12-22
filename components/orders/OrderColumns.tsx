@@ -34,8 +34,20 @@ export const columns: ColumnDef<OrderColumnType>[] = [
   {
     accessorKey: "products",
     header: "Products",
-    cell: ({ row }) => `${row.original.products} item(s)`, // Format products count
-  },
+    cell: ({ row }) => {
+      const products = row.original.products;
+  
+      if (Array.isArray(products)) {
+        // If products is an array, map over it to extract quantities
+        const quantities = products.map((product) => `${product.quantity} item(s)`).join(", ");
+        return quantities;
+      } else {
+        // If products is not an array (or it's just a number), display it directly
+        return `${products} item(s)`;
+      }
+    },
+  }
+  ,
   {
     accessorKey: "totalAmount",
     header: "Total (₹)",
