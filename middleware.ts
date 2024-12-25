@@ -1,4 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher ,clerkClient} from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher([
@@ -12,7 +12,7 @@ const isProtectedRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = auth();
  // Check the session claims
-
+ 
   // Skip if the route is not a protected route
   if (!isProtectedRoute(req)) {
     return NextResponse.next();
@@ -29,11 +29,12 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // Check if the user has 'org:admin' role
-  const orgRole = sessionClaims?.org_role;
-  // Debugging org_role
+  const user = await clerkClient.users.getUser(userId);
 
+  // Check for public metadata, specifically the "role" field
+  const role = user.publicMetadata?.role;
   // If user is an 'org:admin', allow access to all routes
-  if (orgRole === 'org:admin') {
+  if (role === "admin") {
     return NextResponse.next();  // Allow access to all routes for org admins
   }
 
