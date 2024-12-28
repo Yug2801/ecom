@@ -1,22 +1,36 @@
-import { clerkMiddleware, createRouteMatcher ,clerkClient} from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher, clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
+// Define which routes are protected
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
   '/collections(.*)',
   '/customers(.*)',
-  '/orders(.*)',
+  '/orders(.*)',  // Protect /orders and related routes
   '/products(.*)',
-  '/api/orders(.*)',
   '/api/assignAdmin(.*)'
+]);
+
+// Custom matcher for protecting specific API routes
+const isProtectedApiRoute = createRouteMatcher([
+  '/api/orders(.*)', // Protect /api/orders and /api/orders/[orderId]
+]);
+
+// Custom matcher for excluding specific routes from protection
+const isUnprotectedApiRoute = createRouteMatcher([
+  '/api/orders/customers(.*)', // Exclude /api/orders/customers/(.*) from protection
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = auth();
- // Check the session claims
- 
+
   // Skip if the route is not a protected route
   if (!isProtectedRoute(req)) {
+    return NextResponse.next();
+  }
+
+  // If the route is an unprotected API route, let it through
+  if (isUnprotectedApiRoute(req)) {
     return NextResponse.next();
   }
 
@@ -35,13 +49,19 @@ export default clerkMiddleware(async (auth, req) => {
 
   // Check for public metadata, specifically the "role" field
   const role = user.publicMetadata?.role;
+
   // If user is an 'org:admin', allow access to all routes
   if (role === "admin") {
     return NextResponse.next();  // Allow access to all routes for org admins
   }
 
   // If not an org admin, restrict access to protected routes
-  return NextResponse.redirect(new URL('/not-authorized', req.url));
+  if (isProtectedApiRoute(req)) {
+    return NextResponse.redirect(new URL('/not-authorized', req.url));
+  }
+
+  // For other protected routes (like dashboard, collections, etc.)
+  return NextResponse.next();
 });
 
 export const config = {
